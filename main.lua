@@ -5,8 +5,14 @@ howManyColumns = 8
 windowTitle = "Minefield"
 
 function love.load()
-  -- Defines window title
+  -- Window configuration
+  -- Define window title
   love.window.setTitle(windowTitle)
+  -- Define window size
+  windowHeight = spriteHeight * howManyLines + 1
+  windowWidth = spriteWidth * howManyColumns + 1
+  love.window.setMode(windowWidth, windowHeight)
+
   -- Load sprites
   grass = love.graphics.newImage("assets/grass.png")
 end
