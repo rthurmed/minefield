@@ -1,8 +1,13 @@
-spriteHeight = 64
-spriteWidth = 64
-howManyLines = 8
-howManyColumns = 8
+Object = require 'lib/classic/classic'
+Mine = require 'src/mine'
+
+spriteHeight, spriteWidth = 64, 64
+howManyLines, howManyColumns = 8, 8
 windowTitle = "Minefield"
+howManyMines = 12
+
+-- List of mines on the field
+mines = {}
 
 function love.load()
   -- Window configuration
@@ -15,6 +20,9 @@ function love.load()
 
   -- Load sprites
   grass = love.graphics.newImage("assets/grass.png")
+
+  -- Generate mines
+  generateMines()
 end
 
 function love.update()
@@ -33,5 +41,27 @@ function love.draw()
       -- Do it til the end of the line
     end
     -- Do it til every column in every line is drawed
+  end
+end
+
+-- Generates the mines on random positions
+function generateMines()
+  local yposition, xposition = 0, 0
+  for mineIndex = 1, howManyMines do
+    local isGenerated = false
+    while not isGenerated do
+      -- Generate a random position
+      xposition = love.math.random(1, howManyMines)
+      yposition = love.math.random(1, howManyLines)
+      -- Mount the mine
+      local mine = Mine(xposition, yposition)
+      local positionHash = mine:getPositionHash()
+      -- Based on the hash determines if that position is occupied
+      if not mines[positionHash] then
+        -- If not occupied add to the list
+        mines[positionHash] = mine
+        isGenerated = true
+      end
+    end
   end
 end
