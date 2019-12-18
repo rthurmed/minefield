@@ -3,26 +3,39 @@ Field = Object:extend()
 -- List of mines on the field
 Field.mines = {}
 
+-- Generates the equivalent hash to a especified position on the grid
 function Field.generatePositionHash(x, y)
   return '_' .. x .. ':' .. y
 end
 
+-- Verifies whether a position has a mine or not
+function Field.hasMineAt(x, y)
+  local positionHash = Field.generatePositionHash(x, y)
+  return not not Field.mines[positionHash]
+end
+
+-- Creates a mine and adds to the list
+function Field.addMineAt(x, y)
+  -- Mount the mine
+  local mine = Mine(x, y)
+  local positionHash = mine:getPositionHash()
+  -- Add to the list based on the hash
+  Field.mines[positionHash] = mine
+end
+
 -- Generates the mines on random positions
 function Field.generateMines()
-  local yposition, xposition = 0, 0
+  local column, line = 0, 0
   for mineIndex = 1, howManyMines do
     local isGenerated = false
     while not isGenerated do
       -- Generate a random position
-      local xposition = love.math.random(1, howManyColumns)
-      local yposition = love.math.random(1, howManyLines)
-      -- Mount the mine
-      local mine = Mine(xposition, yposition)
-      local positionHash = mine:getPositionHash()
-      -- Based on the hash determines if that position is occupied
-      if not Field.mines[positionHash] then
+      local line = love.math.random(1, howManyColumns)
+      local column = love.math.random(1, howManyLines)
+      -- Verifies if the generated position is already taken
+      if not Field.hasMineAt(line, column) then
         -- If not occupied add to the list
-        Field.mines[positionHash] = mine
+        Field.addMineAt(line, column)
         isGenerated = true
       end
     end
