@@ -6,7 +6,7 @@ function Mine:new(x, y)
 end
 
 function Mine:getPositionHash()
-  return '_' .. self.x .. ':' .. self.y
+  return Field.generatePositionHash(self.x, self.y)
 end
 
 return Mine
