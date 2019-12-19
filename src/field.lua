@@ -8,6 +8,32 @@ function Field.generatePositionHash(x, y)
   return '_' .. x .. ':' .. y
 end
 
+-- Gives the quantity of mines on the 9 adjacents tiles
+-- If the tile has a mine, returns a -1
+function Field.getMineClosenessLevelAt(x, y)
+  -- Ignore if the tile has a mine in it
+  if (Field.hasMineAt(x, y)) then return -1 end
+  local mineClosenessLevel = 0
+  -- Scans the 9x9 square around the tile
+  for relativeXPosition = -1, 1 do
+    for relativeYPosition = -1, 1 do
+      -- Ignore the central tile
+      if not (relativeXPosition == 0 and relativeYPosition == 0) then
+        -- Obtain the x and y position the be compare
+        local comparisonXPosition = x + relativeXPosition
+        local comparisonYPosition = y + relativeYPosition
+        -- Verifies if the comparison position has a mine
+        if Field.hasMineAt(comparisonXPosition, comparisonYPosition) then
+          -- If it does, adds to the closeness level
+          mineClosenessLevel = mineClosenessLevel + 1
+        end
+      end
+    end
+  end
+  -- Returns the total sum of mines
+  return mineClosenessLevel
+end
+
 -- Verifies whether a position has a mine or not
 function Field.hasMineAt(x, y)
   local positionHash = Field.generatePositionHash(x, y)
