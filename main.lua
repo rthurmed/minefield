@@ -1,32 +1,27 @@
 Object = require 'lib/classic/classic'
+
+-- Load classes
 Mine = require 'src/mine'
 Field = require 'src/field'
 
+-- Load all controllers
+SpriteController = require 'src/controllers/sprite'
+FieldController = require 'src/controllers/field'
+InteractionController = require 'src/controllers/interaction'
+
 function love.load()
-  -- GLOBAL VARIABLES
-  spriteHeight, spriteWidth = 64, 64
-  howManyLines, howManyColumns = 8, 8
-  windowTitle = "Minefield"
-  howManyMines = 12
+  -- Init game
 
-  -- Window configuration
-  -- Define window title
-  love.window.setTitle(windowTitle)
-  -- Define window size
-  windowHeight = spriteHeight * howManyLines + 1
-  windowWidth = spriteWidth * howManyColumns + 1
-  love.window.setMode(windowWidth, windowHeight)
-  -- Sets background color to green
-  love.graphics.setBackgroundColor(0/255, 194/255, 19/255)
+  -- Configure game variables
+  require 'config/game'
+  -- Configure window
+  require 'config/window'
 
-  -- Load sprites
-  grass = love.graphics.newImage("assets/grass.png")
+  -- Load all sprites
+  sprites = SpriteController.load()
 
-  -- Generate mines
-  mines = Field.generateMines()
-end
-
-function love.update()
+  -- Places mines on the field
+  Field.generateMines()
 end
 
 function love.draw()
@@ -38,7 +33,7 @@ function love.draw()
       -- Gets horizontal position
       local xposition = spriteWidth * columnCount
       -- Draw a grass image
-      love.graphics.draw(grass, xposition, yposition)
+      love.graphics.draw(sprites.grass, xposition, yposition)
       -- Do it til the end of the line
     end
     -- Do it til every column in every line is drawed
