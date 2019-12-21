@@ -20,8 +20,8 @@ function love.load()
   -- Load all sprites
   sprites = SpriteController.load()
 
-  -- Places mines on the field
-  Field.generateMines()
+  -- Starts the field with mines
+  FieldController.init()
 end
 
 function love.draw()

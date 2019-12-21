@@ -5,8 +5,4 @@ function Mine:new(x, y)
   self.y = y or 0
 end
 
-function Mine:getPositionHash()
-  return Field.generatePositionHash(self.x, self.y)
-end
-
 return Mine

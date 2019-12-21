@@ -1,9 +1,14 @@
 Field = Object:extend()
 
--- List of mines on the field, the index is the positionHash
-Field.mines = {}
--- List of tiles opened by click or by chain reaction
-Field.opened = {}
+function Field:new(width, height)
+  -- Set dimensions
+  self.width = width
+  self.height = height
+  -- List of mines on the field, the index is the positionHash
+  self.mines = {}
+  -- List of tiles opened by click or by chain reaction
+  self.opened = {}
+end
 
 -- Generates the equivalent hash to a especified position on the grid
 function Field.generatePositionHash(x, y)
@@ -12,9 +17,9 @@ end
 
 -- Gives the quantity of mines on the 9 adjacents tiles
 -- If the tile has a mine, returns a -1
-function Field.getMineClosenessLevelAt(x, y)
+function Field:getMineClosenessLevelAt(x, y)
   -- Ignore if the tile has a mine in it
-  if (Field.hasMineAt(x, y)) then return -1 end
+  if self.hasMineAt(self, x, y) then return -1 end
   local mineClosenessLevel = 0
   -- Scans the 9x9 square around the tile
   for relativeXPosition = -1, 1 do
@@ -25,7 +30,7 @@ function Field.getMineClosenessLevelAt(x, y)
         local comparisonXPosition = x + relativeXPosition
         local comparisonYPosition = y + relativeYPosition
         -- Verifies if the comparison position has a mine
-        if Field.hasMineAt(comparisonXPosition, comparisonYPosition) then
+        if self.hasMineAt(self, comparisonXPosition, comparisonYPosition) then
           -- If it does, adds to the closeness level
           mineClosenessLevel = mineClosenessLevel + 1
         end
@@ -37,36 +42,36 @@ function Field.getMineClosenessLevelAt(x, y)
 end
 
 -- Verifies whether a position has a mine or not
-function Field.hasMineAt(x, y)
+function Field:hasMineAt(x, y)
   local positionHash = Field.generatePositionHash(x, y)
-  return not not Field.mines[positionHash]
+  return not not self.mines[positionHash]
 end
 
 -- Verifies whether a position is opened
-function Field.isOpened(x, y)
+function Field:isOpened(x, y)
   local positionHash = Field.generatePositionHash(x, y)
-  return not not Field.opened[positionHash]
+  return not not self.opened[positionHash]
 end
 
 -- Creates a mine and adds to the list
-function Field.addMineAt(x, y)
+function Field:addMineAt(x, y)
   -- Mount the mine
   local mine = Mine(x, y)
-  local positionHash = mine:getPositionHash()
+  local positionHash = Field.generatePositionHash(x, y)
   -- Add to the list based on the hash
-  Field.mines[positionHash] = mine
+  self.mines[positionHash] = mine
 end
 
 -- Open a tile
-function Field.open(x, y)
-  local positionHash = Field.getPositionHash(x, y)
-  local closeness = Field.getMineClosenessLevelAt(x, y)
-  Field.opened[positionHash] = closeness
+function Field:open(x, y)
+  local positionHash = Field.generatePositionHash(x, y)
+  local closeness = self.getMineClosenessLevelAt(self, x, y)
+  self.opened[positionHash] = closeness
   return closeness
 end
 
 -- Calls a chain reaction that opens certain adjacent tiles
-function Field.callChainReactionAt(x, y)
+function Field:callChainReactionAt(x, y)
   -- Scans the 9x9 square around the tile
   for relativeXPosition = -1, 1 do
     for relativeYPosition = -1, 1 do
@@ -76,10 +81,10 @@ function Field.callChainReactionAt(x, y)
         local toOpenXPosition = x + relativeXPosition
         local toOpenYPosition = y + relativeYPosition
         -- Opens that position
-        local closeness = Field.open(toOpenXPosition, toOpenYPosition)
+        local closeness = self.open(self, toOpenXPosition, toOpenYPosition)
         -- If the tile has no mine close to, it calls the chain reaction to that position
         if closeness == 0 then
-          Field.callChainReactionAt(toOpenXPosition, toOpenYPosition)
+          self.callChainReactionAt(self, toOpenXPosition, toOpenYPosition)
         end
       end
     end
@@ -87,40 +92,22 @@ function Field.callChainReactionAt(x, y)
 end
 
 -- Generates the mines on random positions
-function Field.generateMines()
+function Field:generateMines()
   local column, line = 0, 0
   for mineIndex = 1, howManyMines do
     local isGenerated = false
     while not isGenerated do
       -- Generate a random position
-      local line = love.math.random(1, howManyColumns)
-      local column = love.math.random(1, howManyLines)
+      local column = love.math.random(1, self.width)
+      local line = love.math.random(1, self.height)
       -- Verifies if the generated position is already taken
-      if not Field.hasMineAt(line, column) then
+      if not self.hasMineAt(self, column, line) then
         -- If not occupied add to the list
-        Field.addMineAt(line, column)
+        self.addMineAt(self, column, line)
         isGenerated = true
       end
     end
   end
-end
-
--- Open a tile of the field this may cause a chain reaction or a mine explosion
-function Field.openTile(x, y)
-  local positionHash = Field.getPositionHash(x, y)
-  -- If the position has a mine it will return false
-  if Field.hasMineAt(x, y) then
-    return false
-  end
-  -- Ignore if already opened
-  if Field.isOpened(x, y) then
-    return true
-  end
-  -- Open the position
-  local closeness = Field.open(x, y)
-  -- If the closeness is zero it will call a chain reaction
-  if closeness == 0 then Field.callChainReactionAt(x, y) end
-  return true
 end
 
 return Field
