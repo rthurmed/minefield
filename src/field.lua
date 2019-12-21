@@ -1,6 +1,6 @@
 Field = Object:extend()
 
--- List of mines on the field
+-- List of mines on the field, the index is the positionHash
 Field.mines = {}
 -- List of tiles opened by click or by chain reaction
 Field.opened = {}
@@ -60,11 +60,30 @@ end
 -- Open a tile
 function Field.open(x, y)
   local positionHash = Field.getPositionHash(x, y)
-  Field.opened[positionHash] = true
+  local closeness = Field.getMineClosenessLevelAt(x, y)
+  Field.opened[positionHash] = closeness
+  return closeness
 end
 
+-- Calls a chain reaction that opens certain adjacent tiles
 function Field.callChainReactionAt(x, y)
-  -- ToDo
+  -- Scans the 9x9 square around the tile
+  for relativeXPosition = -1, 1 do
+    for relativeYPosition = -1, 1 do
+      -- Ignore the central tile
+      if not (relativeXPosition == 0 and relativeYPosition == 0) then
+        -- Obtain the x and y position the be opened
+        local toOpenXPosition = x + relativeXPosition
+        local toOpenYPosition = y + relativeYPosition
+        -- Opens that position
+        local closeness = Field.open(toOpenXPosition, toOpenYPosition)
+        -- If the tile has no mine close to, it calls the chain reaction to that position
+        if closeness == 0 then
+          Field.callChainReactionAt(toOpenXPosition, toOpenYPosition)
+        end
+      end
+    end
+  end
 end
 
 -- Generates the mines on random positions
@@ -98,9 +117,8 @@ function Field.openTile(x, y)
     return true
   end
   -- Open the position
-  Field.open(x, y)
+  local closeness = Field.open(x, y)
   -- If the closeness is zero it will call a chain reaction
-  local closeness = Field.getMineClosenessLevelAt(x, y)
   if closeness == 0 then Field.callChainReactionAt(x, y) end
   return true
 end
