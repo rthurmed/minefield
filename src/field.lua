@@ -2,6 +2,8 @@ Field = Object:extend()
 
 -- List of mines on the field
 Field.mines = {}
+-- List of tiles opened by click or by chain reaction
+Field.opened = {}
 
 -- Generates the equivalent hash to a especified position on the grid
 function Field.generatePositionHash(x, y)
@@ -40,6 +42,12 @@ function Field.hasMineAt(x, y)
   return not not Field.mines[positionHash]
 end
 
+-- Verifies whether a position is opened
+function Field.isOpened(x, y)
+  local positionHash = Field.generatePositionHash(x, y)
+  return not not Field.opened[positionHash]
+end
+
 -- Creates a mine and adds to the list
 function Field.addMineAt(x, y)
   -- Mount the mine
@@ -47,6 +55,16 @@ function Field.addMineAt(x, y)
   local positionHash = mine:getPositionHash()
   -- Add to the list based on the hash
   Field.mines[positionHash] = mine
+end
+
+-- Open a tile
+function Field.open(x, y)
+  local positionHash = Field.getPositionHash(x, y)
+  Field.opened[positionHash] = true
+end
+
+function Field.callChainReactionAt(x, y)
+  -- ToDo
 end
 
 -- Generates the mines on random positions
@@ -66,6 +84,25 @@ function Field.generateMines()
       end
     end
   end
+end
+
+-- Open a tile of the field this may cause a chain reaction or a mine explosion
+function Field.openTile(x, y)
+  local positionHash = Field.getPositionHash(x, y)
+  -- If the position has a mine it will return false
+  if Field.hasMineAt(x, y) then
+    return false
+  end
+  -- Ignore if already opened
+  if Field.isOpened(x, y) then
+    return true
+  end
+  -- Open the position
+  Field.open(x, y)
+  -- If the closeness is zero it will call a chain reaction
+  local closeness = Field.getMineClosenessLevelAt(x, y)
+  if closeness == 0 then Field.callChainReactionAt(x, y) end
+  return true
 end
 
 return Field
