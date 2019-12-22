@@ -20,6 +20,11 @@ end
 function Field:getMineClosenessLevelAt(x, y)
   -- Ignore if the tile has a mine in it
   if self:hasMineAt(x, y) then return -1 end
+  -- Opened tiles already have pre-calculated closeness
+  if self:isOpened(x, y) then
+    local positionHash = Field.generatePositionHash(x, y)
+    return self.opened[positionHash]
+  end
   local mineClosenessLevel = 0
   self:doForAdjacent(x, y, function (comparisonXPosition, comparisonYPosition) 
     -- Verifies if the comparison position has a mine
