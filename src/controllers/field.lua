@@ -1,5 +1,7 @@
 FieldController = Object:extend()
 
+FieldController.showMines = false
+
 function FieldController.init()
   field = Field(howManyColumns, howManyLines)
   field:generateMines()
@@ -41,6 +43,10 @@ function FieldController.draw()
           local numberY = yposition + (spriteHeight / 2) + 8
           love.graphics.print(closeness, numberX, numberY)
         end
+      elseif FieldController.showMines 
+        and field:hasMineAt(columnCount, lineCount) then
+          -- Draw a mine exploding
+          love.graphics.draw(sprites.exploding1, xposition, yposition)  
       else
         -- Draw a grass image
         love.graphics.draw(sprites.grass, xposition, yposition)

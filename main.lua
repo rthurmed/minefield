@@ -8,6 +8,7 @@ Field = require 'src/field'
 SpriteController = require 'src/controllers/sprite'
 FieldController = require 'src/controllers/field'
 InteractionController = require 'src/controllers/interaction'
+GameController = require 'src/controllers/game'
 
 function love.load()
   -- Init game
