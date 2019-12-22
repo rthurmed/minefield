@@ -24,6 +24,13 @@ function love.load()
   FieldController.init()
 end
 
+function love.mousepressed(x, y, button, istouch, presses)
+  -- 1 represents the left mouse button
+  if button == 1 then
+    InteractionController.click(x, y)
+  end
+end
+
 function love.draw()
   FieldController.draw()
 end

@@ -7,7 +7,6 @@ end
 
 -- Open a tile of the field this may cause a chain reaction or a mine explosion
 function FieldController.openTile(x, y)
-  local positionHash = field:getPositionHash(x, y)
   -- If the position has a mine it will return false
   if field:hasMineAt(x, y) then
     return false
@@ -31,8 +30,21 @@ function FieldController.draw()
     for columnCount = 0, field.width - 1 do
       -- Gets horizontal position
       local xposition = spriteWidth * columnCount
-      -- Draw a grass image
-      love.graphics.draw(sprites.grass, xposition, yposition)
+      if field:isOpened(columnCount, lineCount) then
+        -- Draw a opened grass image
+        love.graphics.draw(sprites.empty, xposition, yposition)
+        local closeness = field:getMineClosenessLevelAt(columnCount, lineCount)
+        -- Only draw number of close mines if is more than none
+        if closeness > 0 then
+          -- Centers number on the empty space in the sprite
+          local numberX = xposition + (spriteWidth / 2) - 5
+          local numberY = yposition + (spriteHeight / 2) + 8
+          love.graphics.print(closeness, numberX, numberY)
+        end
+      else
+        -- Draw a grass image
+        love.graphics.draw(sprites.grass, xposition, yposition)
+      end
       -- Do it til the end of the line
     end
     -- Do it til every column in every line is drawed

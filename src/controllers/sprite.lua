@@ -6,6 +6,7 @@ function SpriteController.load()
   sprites.grass = SpriteController.loadSprite("grass")
   sprites.flag = SpriteController.loadSprite("flag")
   sprites.exploding1 = SpriteController.loadSprite("exploding1")
+  sprites.empty = SpriteController.loadSprite("empty")
   return sprites
 end
 
