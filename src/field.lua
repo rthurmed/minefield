@@ -21,22 +21,13 @@ function Field:getMineClosenessLevelAt(x, y)
   -- Ignore if the tile has a mine in it
   if self:hasMineAt(x, y) then return -1 end
   local mineClosenessLevel = 0
-  -- Scans the 9x9 square around the tile
-  for relativeXPosition = -1, 1 do
-    for relativeYPosition = -1, 1 do
-      -- Ignore the central tile
-      if not (relativeXPosition == 0 and relativeYPosition == 0) then
-        -- Obtain the x and y position the be compare
-        local comparisonXPosition = x + relativeXPosition
-        local comparisonYPosition = y + relativeYPosition
-        -- Verifies if the comparison position has a mine
-        if self:hasMineAt(comparisonXPosition, comparisonYPosition) then
-          -- If it does, adds to the closeness level
-          mineClosenessLevel = mineClosenessLevel + 1
-        end
-      end
+  self:doForAdjacent(x, y, function (comparisonXPosition, comparisonYPosition) 
+    -- Verifies if the comparison position has a mine
+    if self:hasMineAt(comparisonXPosition, comparisonYPosition) then
+      -- If it does, adds to the closeness level
+      mineClosenessLevel = mineClosenessLevel + 1
     end
-  end
+  end)
   -- Returns the total sum of mines
   return mineClosenessLevel
 end
@@ -72,23 +63,16 @@ end
 
 -- Calls a chain reaction that opens certain adjacent tiles
 function Field:callChainReactionAt(x, y)
-  -- Scans the 9x9 square around the tile
-  for relativeXPosition = -1, 1 do
-    for relativeYPosition = -1, 1 do
-      -- Ignore the central tile
-      if not (relativeXPosition == 0 and relativeYPosition == 0) then
-        -- Obtain the x and y position the be opened
-        local toOpenXPosition = x + relativeXPosition
-        local toOpenYPosition = y + relativeYPosition
-        -- Opens that position
-        local closeness = self:open(toOpenXPosition, toOpenYPosition)
-        -- If the tile has no mine close to, it calls the chain reaction to that position
-        if closeness == 0 then
-          self:callChainReactionAt(toOpenXPosition, toOpenYPosition)
-        end
-      end
+  self:doForAdjacent(x, y, function (toOpenXPosition, toOpenYPosition)
+    -- Opens that position
+    local closeness = self:open(toOpenXPosition, toOpenYPosition)
+    -- If the tile has no close mines nor is already opened, it calls the chain 
+    -- reaction to its position
+    if closeness == 0 
+      and not self:isOpened(toOpenXPosition, toOpenYPosition) then
+        self:callChainReactionAt(toOpenXPosition, toOpenYPosition)
     end
-  end
+  end)
 end
 
 -- Generates the mines on random positions
@@ -105,6 +89,26 @@ function Field:generateMines()
         -- If not occupied add to the list
         self:addMineAt(column, line)
         isGenerated = true
+      end
+    end
+  end
+end
+
+function Field:doForAdjacent(x, y, fn)
+  -- Scans the 9x9 square around the tile
+  for relativeXPosition = -1, 1 do
+    for relativeYPosition = -1, 1 do
+      -- Obtain the x and y position
+      local adjacentXPosition = x + relativeXPosition
+      local adjacentYPosition = y + relativeYPosition
+      -- Ignore the central tile
+      if not (relativeXPosition == 0 and relativeYPosition == 0) 
+      -- Also ignore if its not contained by the field
+        and adjacentYPosition <= self.height 
+        and adjacentYPosition >= 1
+        and adjacentXPosition <= self.width
+        and adjacentXPosition >= 1 then
+          fn(adjacentXPosition, adjacentYPosition)
       end
     end
   end
