@@ -19,7 +19,7 @@ end
 -- If the tile has a mine, returns a -1
 function Field:getMineClosenessLevelAt(x, y)
   -- Ignore if the tile has a mine in it
-  if self.hasMineAt(self, x, y) then return -1 end
+  if self:hasMineAt(x, y) then return -1 end
   local mineClosenessLevel = 0
   -- Scans the 9x9 square around the tile
   for relativeXPosition = -1, 1 do
@@ -30,7 +30,7 @@ function Field:getMineClosenessLevelAt(x, y)
         local comparisonXPosition = x + relativeXPosition
         local comparisonYPosition = y + relativeYPosition
         -- Verifies if the comparison position has a mine
-        if self.hasMineAt(self, comparisonXPosition, comparisonYPosition) then
+        if self:hasMineAt(comparisonXPosition, comparisonYPosition) then
           -- If it does, adds to the closeness level
           mineClosenessLevel = mineClosenessLevel + 1
         end
@@ -65,7 +65,7 @@ end
 -- Open a tile
 function Field:open(x, y)
   local positionHash = Field.generatePositionHash(x, y)
-  local closeness = self.getMineClosenessLevelAt(self, x, y)
+  local closeness = self:getMineClosenessLevelAt(x, y)
   self.opened[positionHash] = closeness
   return closeness
 end
@@ -81,10 +81,10 @@ function Field:callChainReactionAt(x, y)
         local toOpenXPosition = x + relativeXPosition
         local toOpenYPosition = y + relativeYPosition
         -- Opens that position
-        local closeness = self.open(self, toOpenXPosition, toOpenYPosition)
+        local closeness = self:open(toOpenXPosition, toOpenYPosition)
         -- If the tile has no mine close to, it calls the chain reaction to that position
         if closeness == 0 then
-          self.callChainReactionAt(self, toOpenXPosition, toOpenYPosition)
+          self:callChainReactionAt(toOpenXPosition, toOpenYPosition)
         end
       end
     end
@@ -101,9 +101,9 @@ function Field:generateMines()
       local column = love.math.random(1, self.width)
       local line = love.math.random(1, self.height)
       -- Verifies if the generated position is already taken
-      if not self.hasMineAt(self, column, line) then
+      if not self:hasMineAt(column, line) then
         -- If not occupied add to the list
-        self.addMineAt(self, column, line)
+        self:addMineAt(column, line)
         isGenerated = true
       end
     end
