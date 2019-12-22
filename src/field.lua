@@ -64,13 +64,14 @@ end
 -- Calls a chain reaction that opens certain adjacent tiles
 function Field:callChainReactionAt(x, y)
   self:doForAdjacent(x, y, function (toOpenXPosition, toOpenYPosition)
+    -- Ignore if already open, this prevents reaction to chain the reaction that opened then
+    if self:isOpened(toOpenXPosition, toOpenYPosition) then return end
     -- Opens that position
     local closeness = self:open(toOpenXPosition, toOpenYPosition)
     -- If the tile has no close mines nor is already opened, it calls the chain 
     -- reaction to its position
-    if closeness == 0 
-      and not self:isOpened(toOpenXPosition, toOpenYPosition) then
-        self:callChainReactionAt(toOpenXPosition, toOpenYPosition)
+    if closeness == 0 then
+      self:callChainReactionAt(toOpenXPosition, toOpenYPosition)
     end
   end)
 end
@@ -104,10 +105,10 @@ function Field:doForAdjacent(x, y, fn)
       -- Ignore the central tile
       if not (relativeXPosition == 0 and relativeYPosition == 0) 
       -- Also ignore if its not contained by the field
-        and adjacentYPosition <= self.height 
-        and adjacentYPosition >= 1
-        and adjacentXPosition <= self.width
-        and adjacentXPosition >= 1 then
+        and adjacentYPosition < self.height 
+        and adjacentYPosition >= 0
+        and adjacentXPosition < self.width
+        and adjacentXPosition >= 0 then
           fn(adjacentXPosition, adjacentYPosition)
       end
     end
