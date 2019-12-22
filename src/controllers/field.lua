@@ -13,8 +13,8 @@ function FieldController.openTile(x, y)
   if field:hasMineAt(x, y) then
     return false
   end
-  -- Ignore if already opened
-  if field:isOpened(x, y) then
+  -- Ignore if already opened or has a flag
+  if field:isOpened(x, y) or field:hasFlagAt(x, y) then
     return true
   end
   -- Open the position

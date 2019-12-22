@@ -8,6 +8,8 @@ function Field:new(width, height)
   self.mines = {}
   -- List of tiles opened by click or by chain reaction
   self.opened = {}
+  -- List of flags inserted by the user
+  self.flagged = {}
 end
 
 -- Generates the equivalent hash to a especified position on the grid
@@ -43,6 +45,12 @@ function Field:hasMineAt(x, y)
   return not not self.mines[positionHash]
 end
 
+-- Verifies whether a position has a flag
+function Field:hasFlagAt(x, y)
+  local positionHash = Field.generatePositionHash(x, y)
+  return not not self.flagged[positionHash]
+end
+
 -- Verifies whether a position is opened
 function Field:isOpened(x, y)
   local positionHash = Field.generatePositionHash(x, y)
@@ -66,11 +74,18 @@ function Field:open(x, y)
   return closeness
 end
 
+function Field:flag(x, y)
+  local positionHash = Field.generatePositionHash(x, y)
+  self.flagged[positionHash] = true
+end
+
 -- Calls a chain reaction that opens certain adjacent tiles
 function Field:callChainReactionAt(x, y)
   self:doForAdjacent(x, y, function (toOpenXPosition, toOpenYPosition)
-    -- Ignore if already open, this prevents reaction to chain the reaction that opened then
-    if self:isOpened(toOpenXPosition, toOpenYPosition) then return end
+    -- Ignore if already open, this prevents reaction to chain the reaction 
+    -- that opened then. Also ignore if has a flag
+    if self:isOpened(toOpenXPosition, toOpenYPosition) 
+      or self:hasFlagAt(toOpenXPosition, toOpenYPosition) then return end
     -- Opens that position
     local closeness = self:open(toOpenXPosition, toOpenYPosition)
     -- If the tile has no close mines nor is already opened, it calls the chain 
