@@ -82,8 +82,8 @@ function Field:generateMines()
     local isGenerated = false
     while not isGenerated do
       -- Generate a random position
-      local column = love.math.random(1, self.width)
-      local line = love.math.random(1, self.height)
+      local column = love.math.random(0, self.width - 1)
+      local line = love.math.random(0, self.height - 1)
       -- Verifies if the generated position is already taken
       if not self:hasMineAt(column, line) then
         -- If not occupied add to the list
