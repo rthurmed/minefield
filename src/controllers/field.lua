@@ -24,6 +24,14 @@ function FieldController.openTile(x, y)
   return true
 end
 
+-- Returns what tile is on a position of the screen
+function FieldController.whichTile(screenX, screenY)
+  local tileX, tileY = 0, 0
+  tileX = math.floor(screenX / spriteWidth)
+  tileY = math.floor(screenY / spriteHeight)
+  return tileX, tileY
+end
+
 function FieldController.draw()
   -- Draws every column in a line, before moving to the next one
   for lineCount = 0, field.height - 1 do
