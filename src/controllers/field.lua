@@ -9,19 +9,26 @@ end
 
 -- Open a tile of the field this may cause a chain reaction or a mine explosion
 function FieldController.openTile(x, y)
-  -- If the position has a mine it will return false
-  if field:hasMineAt(x, y) then
-    return false
-  end
   -- Ignore if already opened or has a flag
   if field:isOpened(x, y) or field:hasFlagAt(x, y) then
     return true
+  end
+  -- If the position has a mine it will return false
+  if field:hasMineAt(x, y) then
+    return false
   end
   -- Open the position
   local closeness = field:open(x, y)
   -- If the closeness is zero it will call a chain reaction
   if closeness == 0 then field:callChainReactionAt(x, y) end
   return true
+end
+
+function FieldController.flag(x, y)
+  -- Cannot put a flag on a opened tile
+  if field:isOpened(x, y) then return end
+  -- Set the flag
+  field:flag(x, y)
 end
 
 -- Returns what tile is on a position of the screen
@@ -51,6 +58,9 @@ function FieldController.draw()
           local numberY = yposition + (spriteHeight / 2) + 8
           love.graphics.print(closeness, numberX, numberY)
         end
+      elseif field:hasFlagAt(columnCount, lineCount) then
+        -- Draw a flag
+        love.graphics.draw(sprites.flag, xposition, yposition)
       elseif FieldController.showMines 
         and field:hasMineAt(columnCount, lineCount) then
           -- Draw a mine exploding

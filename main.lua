@@ -26,9 +26,12 @@ function love.load()
 end
 
 function love.mousepressed(x, y, button, istouch, presses)
-  -- 1 represents the left mouse button
   if button == 1 then
+    -- 1 represents left mouse button
     InteractionController.click(x, y)
+  elseif button == 2 then
+    -- 2 represents right mouse button
+    InteractionController.rightClick(x, y)
   end
 end
 
