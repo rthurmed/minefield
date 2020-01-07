@@ -40,6 +40,7 @@ function FieldController.whichTile(screenX, screenY)
 end
 
 function FieldController.draw()
+  love.graphics.setColor(1,1,1,1)
   -- Draws every column in a line, before moving to the next one
   for lineCount = 0, field.height - 1 do
     -- Gets vertical position based on what line is being drawed

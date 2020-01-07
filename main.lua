@@ -9,6 +9,7 @@ SpriteController = require 'src/controllers/sprite'
 FieldController = require 'src/controllers/field'
 InteractionController = require 'src/controllers/interaction'
 GameController = require 'src/controllers/game'
+UIController = require 'src/controllers/ui'
 
 function love.load()
   -- Init game
@@ -37,4 +38,5 @@ end
 
 function love.draw()
   FieldController.draw()
+  UIController.draw()
 end
